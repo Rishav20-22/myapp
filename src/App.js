@@ -43,7 +43,7 @@ var data_array= [];
        types_stream.add(dat.info[i].Streams[j].stream_type)
         for(var k=0;k<dat.info[i].Streams[j].data.length;k++)
         {
-          if (dat.info[i].Streams[j].stream_type == data_type)
+          if (dat.info[i].Streams[j].stream_type == data_type && data_array.length<4000)
           {data_array.push({
             name: dat.info[i].Streams[j].stream_type,
             y_axis: dat.info[i].Streams[j].data[k]["Value"],
