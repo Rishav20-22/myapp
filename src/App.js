@@ -11,53 +11,55 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
+import dat from './data.json';
+
+
 
 // I don't understand state :(
-async function data(id) {
-  var pkts = new Array();
-  const response = await fetch(id, {});
-  const json = await ndjsonStream(response.body);
 
-  const dt = await json.getReader().read().then(value => value)
-  console.log(dt)
-  for (var i = 0; i < dt.value.packets.length; i++) {
-    pkts.push(dt.value.packets[i])
-  }
-  return pkts
-}
 
-var value = ""
+var data_type = ""
 var startTime = ""
 var endTime = ""
 
 function App() {
+  const handleSelect = (e) => {
+    
+    data_type = e
+    console.log(data_type)
+    App()
+  }
+
+var types_stream =new Set()
+
+var data_array= [];
 
 
-  data("data.json").then(pkts => {
-
-    const handleSelect = (e) => {
-      console.log(e);
-      value = e
-      App()
-    }
-
-    var data_array = new Array()
-    for (var i = 0; i < pkts.length; i++) {
-      if (pkts[i].stream_type == value) {
-        data_array.push({
-          name: pkts[i].stream_type,
-          y_axis: pkts[i].Value,
-          x_axis: pkts[i].dateTime
-        })
-       
-      }
-
-    }
-    const handleChange = e => {
-      console.log(e.target.value);
-      console.log(e)
-    };
-
+   for(var i=0;i<dat.info.length;i++)
+   {
+     //console.log(dat.info[i].Streams[i].data[i]["Value"])
+     for(var j=0;j<dat.info[i].Streams.length;j++)
+     {
+       types_stream.add(dat.info[i].Streams[j].stream_type)
+        for(var k=0;k<dat.info[i].Streams[j].data.length;k++)
+        {
+          if (dat.info[i].Streams[j].stream_type == data_type)
+          {data_array.push({
+            name: dat.info[i].Streams[j].stream_type,
+            y_axis: dat.info[i].Streams[j].data[k]["Value"],
+            x_axis: dat.info[i].Streams[j].data[k]["dateTime"]
+          })}
+          //console.log(dat.info[i].Streams[j].data[k]["dateTime"]+"="+dat.info[i].Streams[j].data[k]["Value"]);
+        }
+     }
+   }
+   console.log(types_stream)
+   var drop_down_element = []
+   types_stream = Array.from(types_stream);
+   for(var i=0;i<types_stream.length;i++)
+   {
+     drop_down_element.push(<Dropdown.Item eventKey={types_stream[i]}>{types_stream[i]}</Dropdown.Item>)
+   }
     var element = [
       <div className="side">
       <form  noValidate>
@@ -66,7 +68,7 @@ function App() {
         label="Start Time"
         type="datetime-local"
         
-        onChange = {handleChange} 
+        //onChange = {handleChange} 
         
         InputLabelProps={{
           shrink: true,
@@ -93,9 +95,10 @@ function App() {
           id="dropdown-menu-align-left"
           onSelect={handleSelect}
         >
-          <Dropdown.Item eventKey="E4_Gsr">E4_Gsr</Dropdown.Item>
-          <Dropdown.Item eventKey="E4_Bvp">E4_Bvp</Dropdown.Item>
-
+          {
+          drop_down_element
+          }
+         
           <Dropdown.Divider />
 
         </DropdownButton>
@@ -123,12 +126,9 @@ function App() {
       
       ]
 
-    /*for(var i=0;i<pkts.length;i++)
-    {
-      element.push(<div>{pkts[i].stream_type.toString()}={pkts[i].Value},{pkts[i].dateTime.toString()}</div>)
-    }*/
+    
     ReactDOM.render(element, document.getElementById('root'));
-  })
+  
 
 
   
